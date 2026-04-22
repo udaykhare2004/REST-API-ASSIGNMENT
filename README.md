@@ -73,7 +73,8 @@ Create `backend/.env`:
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=change_this_in_production
-REDIS_URL=redis://localhost:6379
+NOTIFICATION_SERVICE_URL=http://localhost:7000
+NOTIFICATION_SERVICE_API_KEY=optional_api_key
 ```
 
 > Database name in your URI should be `BACKEND` as requested.
@@ -233,39 +234,30 @@ npm start
 
 ---
 
-## Redis Caching
+## Notification Microservice Integration
 
-- Read endpoints for tasks are cached using Redis:
-  - `GET /api/v1/tasks`
-  - `GET /api/v1/tasks/:id`
-- Cache keys are role/user scoped to avoid data leakage.
-- Cache TTL is set to 120 seconds.
-- On task create/update/delete, related user/admin task cache keys are invalidated.
-- If Redis is unavailable or `REDIS_URL` is not set, the API continues to work without caching.
+- Redis has been removed completely to avoid deployment conflicts.
+- The backend now supports optional integration with an external notification microservice.
+- When enabled, it sends non-blocking events for:
+  - `user.registered`
+  - `task.created`
+  - `task.updated`
+  - `task.deleted`
+- If `NOTIFICATION_SERVICE_URL` is empty or unreachable, the core API flow continues without failing.
 
-### Run Redis Locally
+### Notification Service Contract
 
-Use any one option:
-
-```bash
-# If Redis is installed locally
-redis-server
-```
-
-```bash
-# With Docker
-docker run --name backend-redis -p 6379:6379 -d redis
-```
-
-### Verify Cache Is Working
-
-1. Start backend with `REDIS_URL=redis://localhost:6379`.
-2. Call `GET /api/v1/tasks` twice with the same authenticated user.
-3. The second response should include:
+- Endpoint expected by backend: `POST {NOTIFICATION_SERVICE_URL}/events`
+- Example payload:
 
 ```json
 {
-  "meta": { "cached": true }
+  "eventType": "task.created",
+  "payload": {
+    "taskId": "123",
+    "title": "Example task"
+  },
+  "createdAt": "2026-04-22T15:30:00.000Z"
 }
 ```
 

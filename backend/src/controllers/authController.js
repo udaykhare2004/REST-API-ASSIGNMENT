@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const ApiError = require("../utils/ApiError");
+const { sendNotificationEvent } = require("../services/notificationClient");
 
 const signToken = (id, role) =>
   jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "1d" });
@@ -16,6 +17,11 @@ const register = async (req, res, next) => {
 
     const user = await User.create({ name, email, password, role });
     const token = signToken(user._id, user.role);
+    await sendNotificationEvent("user.registered", {
+      userId: user._id,
+      email: user.email,
+      role: user.role,
+    });
 
     return res.status(201).json({
       success: true,
