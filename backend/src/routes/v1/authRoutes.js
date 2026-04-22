@@ -10,7 +10,35 @@ const router = express.Router();
  * @swagger
  * /api/v1/auth/register:
  *   post:
- *     summary: Register user
+ *     tags: [Auth]
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, email, password]
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Aditya Test User
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: aditya.user1@example.com
+ *               password:
+ *                 type: string
+ *                 example: Test@12345
+ *               role:
+ *                 type: string
+ *                 enum: [user, admin]
+ *                 example: user
+ *     responses:
+ *       201:
+ *         description: Registration successful
+ *       409:
+ *         description: Email already registered
  */
 router.post(
   "/register",
@@ -28,7 +56,28 @@ router.post(
  * @swagger
  * /api/v1/auth/login:
  *   post:
- *     summary: Login user
+ *     tags: [Auth]
+ *     summary: Login user and receive JWT
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: aditya.user1@example.com
+ *               password:
+ *                 type: string
+ *                 example: Test@12345
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
  */
 router.post(
   "/login",
@@ -37,6 +86,20 @@ router.post(
   login
 );
 
+/**
+ * @swagger
+ * /api/v1/auth/me:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Get current logged-in user
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user profile
+ *       401:
+ *         description: Unauthorized
+ */
 router.get("/me", protect, me);
 
 module.exports = router;
