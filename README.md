@@ -243,3 +243,29 @@ npm start
 - On task create/update/delete, related user/admin task cache keys are invalidated.
 - If Redis is unavailable or `REDIS_URL` is not set, the API continues to work without caching.
 
+### Run Redis Locally
+
+Use any one option:
+
+```bash
+# If Redis is installed locally
+redis-server
+```
+
+```bash
+# With Docker
+docker run --name backend-redis -p 6379:6379 -d redis
+```
+
+### Verify Cache Is Working
+
+1. Start backend with `REDIS_URL=redis://localhost:6379`.
+2. Call `GET /api/v1/tasks` twice with the same authenticated user.
+3. The second response should include:
+
+```json
+{
+  "meta": { "cached": true }
+}
+```
+
