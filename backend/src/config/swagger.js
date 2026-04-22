@@ -9,7 +9,7 @@ const swaggerSpec = swaggerJsdoc({
       description: "JWT auth + RBAC + Task CRUD API",
     },
     servers: [
-      { url: process.env.API_BASE_URL || "http://localhost:5000", description: "Active server" },
+      { url: process.env.API_BASE_URL || "/", description: "Current deployment" },
       { url: "http://localhost:5000", description: "Local development" },
     ],
     components: {
