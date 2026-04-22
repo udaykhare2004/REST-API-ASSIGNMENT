@@ -73,6 +73,7 @@ Create `backend/.env`:
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=change_this_in_production
+REDIS_URL=redis://localhost:6379
 ```
 
 > Database name in your URI should be `BACKEND` as requested.
@@ -229,4 +230,16 @@ npm start
 - Never commit real secrets to a public repository.
 - Consider using HTTP-only cookies for token handling in production.
 - Add stricter CORS origin policies before deployment.
+
+---
+
+## Redis Caching
+
+- Read endpoints for tasks are cached using Redis:
+  - `GET /api/v1/tasks`
+  - `GET /api/v1/tasks/:id`
+- Cache keys are role/user scoped to avoid data leakage.
+- Cache TTL is set to 120 seconds.
+- On task create/update/delete, related user/admin task cache keys are invalidated.
+- If Redis is unavailable or `REDIS_URL` is not set, the API continues to work without caching.
 

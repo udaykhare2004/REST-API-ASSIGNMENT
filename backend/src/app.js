@@ -9,6 +9,7 @@ const swaggerSpec = require("./config/swagger");
 const { errorHandler, notFound } = require("./middlewares/errorMiddleware");
 
 const app = express();
+app.locals.redisClient = null;
 
 app.use(helmet());
 app.use(cors({ origin: "*" }));
